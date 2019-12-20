@@ -3,7 +3,7 @@ package elements;
 import dataStructure.node_data;
 import utils.Point3D;
 
-import java.io.InvalidObjectException;
+
 import java.security.InvalidParameterException;
 
 public class nodeData implements node_data {
@@ -86,10 +86,8 @@ public class nodeData implements node_data {
                     } else {                                                                    //id 1st , location 2nd and weight is last
                         _id = Integer.parseInt(s.substring(s.indexOf('d'), s.indexOf('l')));
                         _location = new Point3D(s.substring(s.indexOf('n') + 1, s.indexOf('w')));
-                        ;
                         _weight = Double.parseDouble(s.substring(s.indexOf('h') + 2, s.length()));
                     }
-
                 } else if (s.indexOf('w') < s.indexOf('d') && s.indexOf('w') < s.indexOf('l')) {              //weight appear 1st in string
                     if (s.indexOf('d') < s.indexOf('l')) {                           //Appearance: weight is 1st,id 2nd and location last
                         _weight = Double.parseDouble(s.substring(s.indexOf('h') + 2, s.indexOf('i')));
