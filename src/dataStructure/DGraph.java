@@ -14,6 +14,7 @@ public class DGraph implements graph {
 
     public DGraph() {//empty Graph
         _nodes = new ArrayList<>();
+        _edges = new HashMap<>();
         _mc = 0;
     }
 
