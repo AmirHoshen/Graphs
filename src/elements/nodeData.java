@@ -21,7 +21,7 @@ public class nodeData implements node_data {
 
     public nodeData(Point3D location, double weight) throws Exception {
         if(weight<=0){
-            throw new Exception("Weight isn't Correct!");
+            throw new Exception("nodeData: (location,weight)->Weight isn't Correct, should be Positive!");
         }
         this._id++;
         _weight = weight;
@@ -155,7 +155,7 @@ public class nodeData implements node_data {
     @Override
     public void setTag(int t) {
         if(t<-1 || t>1){
-            throw new IllegalArgumentException("Tag can only be -1,0,1");
+            throw new IllegalArgumentException("nodeData: setTag->Tag can only be -1,0,1");
         }else {
             _tag = t;
         }
