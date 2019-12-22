@@ -403,6 +403,10 @@ public class edgeData implements edge_data {// zug sadur shel start ve end weigh
 
     @Override
     public void setTag(int t) {
-        this._tag = t;
+        if(t>-1&&t<1) {
+            this._tag = t;
+        }else{
+            throw new IllegalArgumentException("setTag: Method received illegal tag");
+        }
     }
 }
