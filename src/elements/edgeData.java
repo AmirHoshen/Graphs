@@ -13,7 +13,7 @@ public class edgeData implements edge_data {// zug sadur shel start ve end weigh
         this._src = src;
         this._dest = dest;
         if (weight <= 0) {
-            throw new Exception("Weight isn't Correct!");
+            throw new Exception("edgeData:(src,dest,weight)->Weight isn't Correct, should be Positive!");
         }
         this._weight = weight;
         this._tag = 0;
