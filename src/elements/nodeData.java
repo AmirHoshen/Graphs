@@ -154,6 +154,10 @@ public class nodeData implements node_data {
 
     @Override
     public void setTag(int t) {
-
+        if(t<-1 || t>1){
+            throw new IllegalArgumentException("Tag can only be -1,0,1");
+        }else {
+            _tag = t;
+        }
     }
 }
