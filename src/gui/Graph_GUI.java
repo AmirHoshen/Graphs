@@ -41,7 +41,7 @@ public class Graph_GUI {
             for (node_data a: vertex) {
                 double x = a.getLocation().x();
                 double y = a.getLocation().y();
-                StdDraw.setPenRadius(0.006);
+                StdDraw.setPenRadius(0.018);
                 StdDraw.setPenColor(StdDraw.BLUE);
                 StdDraw.point(x,y);
             }
@@ -56,13 +56,19 @@ public class Graph_GUI {
             nodeData tmp = (nodeData)a;
             Collection<edge_data> edge = g.getE(a.getKey());
             for(edge_data e: edge){
-                double src_x = a.getLocation().x();
-                double src_y = a.getLocation().y();
-                double dest_x = g.getNode(e.getDest()).getLocation().x();
-                double dest_y = g.getNode(e.getDest()).getLocation().y();
-                StdDraw.setPenRadius(0.005);
+                double s_x = a.getLocation().x();
+                double s_y = a.getLocation().y();
+                double d_x = g.getNode(e.getDest()).getLocation().x();
+                double d_y = g.getNode(e.getDest()).getLocation().y();
+                //draw the edge between two vertexes
+                StdDraw.setPenRadius(0.006);
                 StdDraw.setPenColor(StdDraw.YELLOW);
-                StdDraw.line(src_x,src_y,dest_x,dest_y);
+                StdDraw.line(s_x,s_y,d_x,d_y);
+                //draw the weight on the middle edge
+                StdDraw.setPenRadius(0.3);
+                StdDraw.setPenColor(StdDraw.BLACK);
+                String weight = Double.toString(e.getWeight());
+                StdDraw.text((s_x+d_x)/2,(s_y+d_y)/2, weight);
             }
         }
     }
