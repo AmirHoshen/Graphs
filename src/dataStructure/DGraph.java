@@ -1,10 +1,7 @@
 package dataStructure;
 
-import dataStructure.node_data;
-import dataStructure.edge_data;
 import elements.edgeData;
 import elements.nodeData;
-import org.w3c.dom.Node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
