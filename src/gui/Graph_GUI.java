@@ -1,5 +1,6 @@
 package gui;
 
+import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.node_data;
@@ -16,48 +17,39 @@ import java.util.Collection;
 public class Graph_GUI {
 
     static DGraph g = new DGraph();
+    Graph_Algo g_a = new Graph_Algo();
 
-    private static void serializable() throws Exception {
-        DGraph gr = new DGraph();
-        gr.copy(g);
-        String file_name = "graph.jpg";
+    public void load(String file_name) {
+        try
+        {
+            FileInputStream file = new FileInputStream(file_name);
+            ObjectInputStream in = new ObjectInputStream(file);
+            g = (DGraph)in.readObject();
+            in.close();
+            file.close();
+            System.out.println("Object has been deserialized");
+        }
 
-        try {
+        catch(IOException | ClassNotFoundException ex)
+        {
+            System.out.println("IOException is caught");
+        }
+    }
+
+    public void save(String file_name) {
+        try
+        {
             FileOutputStream file = new FileOutputStream(file_name);
             ObjectOutputStream out = new ObjectOutputStream(file);
-
             out.writeObject(g);
-
             out.close();
             file.close();
 
             System.out.println("Object has been serialized");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
-
-    private static void deserializable(){
-        DGraph graph = null;
-
-        try{
-            FileInputStream file = new FileInputStream("graph.jpg");
-            ObjectInputStream in = new ObjectInputStream(file);
-            graph = (DGraph)in.readObject();
-
-            in.close();
-            file.close();
-            System.out.println("Object has been deserialize");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        catch(IOException ex)
+        {
+            System.out.println("IOException is caught");
         }
     }
 
@@ -91,24 +83,44 @@ public class Graph_GUI {
                 Algo.add(isCon);
                 Algo.add(tsp);
                 Algo.add(sP);
-
+///////////////////////////////////////////////////////////////////////
+                //actions:
+                //save
                 ActionListener saveClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            serializable();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                            save("graph.jpg");
                     }
                 };
+                save.addActionListener(saveClicked);
 
+                //load:
                 ActionListener loadClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        deserializable();
+                        load("graph.jpg");
                     }
                 };
+                load.addActionListener(loadClicked);
+////////////////////////////////////////////////////////////////////////
+                //algo:
+                //isConnected:
+                ActionListener isConn = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            g_a.copy(g);
+                        } catch (Exception ex) {
+                            System.out.println("something went wrong: (Graph_GUI:line:114)");
+                            ex.printStackTrace();
+                        }
+                        StdDraw.setPenColor(StdDraw.BLACK);
+                        StdDraw.setPenRadius(0.6);
+                        StdDraw.text(-80,80, "is connected: "+g_a.isConnected());
+                    }
+                };
+
+
 
                 StdDraw.frame.setJMenuBar(menu);
 
