@@ -1,9 +1,6 @@
 package elements;
 
 import dataStructure.edge_data;
-import utils.Point3D;
-
-import java.security.InvalidParameterException;
 
 public class edgeData implements edge_data {// zug sadur shel start ve end weight ze ha mishkal shel ha maavar ba keshet
     private int _src;
