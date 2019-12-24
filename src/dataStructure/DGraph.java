@@ -14,6 +14,19 @@ public class DGraph implements graph, Serializable {
     private int _mc = 0;
 
 
+    public graph copy(graph g) throws Exception {
+        DGraph _temp = new DGraph();
+        for (node_data n : g.getV()) {
+            _temp.addNode(n);
+        }
+        for (node_data n : g.getV()) {
+            for (edge_data e : g.getE(n.getKey())) {
+                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
+            }
+        }
+        return _temp;
+    }
+
     @Override
     public node_data getNode(int key) {//because the ID is unique and it is in order if you get the node by key it also
         //gives the node in the order of creation. O(1) easy.
