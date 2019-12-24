@@ -1,15 +1,17 @@
 package elements;
 
+import dataStructure.edge_data;
 import dataStructure.node_data;
 import utils.Point3D;
 
-import java.security.InvalidParameterException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class nodeData implements node_data {
-    public HashMap<Integer,edgeData> _edge = new HashMap<>();
+    private ArrayList<edge_data> _edge = new ArrayList<>();
     private static int _id = 0;
     private int _key;
+    private int _prev;
     private double _weight;
     private Point3D _location;
     private String _info = "";
@@ -20,7 +22,7 @@ public class nodeData implements node_data {
         this._key = _id;
         this._id++;
         this._info="";
-        this._tag = 0;
+        this._tag = -1;
         _weight = 0;//check for logic if it should have empty constructor!
         _location = new Point3D(0, 0);
     }
@@ -33,7 +35,7 @@ public class nodeData implements node_data {
         this._id++;
         _weight = weight;
         _location = new Point3D(location);
-        _tag = 0;
+        _tag = -1;
         _info = "";
     }
 
@@ -47,7 +49,7 @@ public class nodeData implements node_data {
 
     public void addEdge(edgeData e){
         if(this._key==e.getSrc()){
-            _edge.put(e.getDest(),e);
+            _edge.add(e);
         }else{
             System.out.println("Inserted wrong edge value");
         }
@@ -107,7 +109,19 @@ public class nodeData implements node_data {
         }
     }
 
-    public HashMap<Integer,edgeData> edgesOf(){
+    public Collection<edge_data> edgesOf(){
         return _edge;
+    }
+    public void deleteEdge(int src,int dest){
+        for(edge_data ed : _edge){
+            if(src==ed.getSrc() && dest == ed.getDest())
+                _edge.remove(ed);
+        }
+    }
+    public void set_prev(int n){
+        this._prev = n;
+    }
+    public int get_prev(){
+        return this._prev;
     }
 }
