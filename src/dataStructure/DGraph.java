@@ -1,5 +1,6 @@
 package dataStructure;
 
+import algorithms.Graph_Algo;
 import elements.edgeData;
 import elements.nodeData;
 
@@ -10,23 +11,12 @@ import java.util.HashMap;
 
 public class DGraph implements graph, Serializable {
     private static HashMap<Integer, node_data> _allNodes = new HashMap<>();
+
+    private HashMap<Integer, HashMap<Integer, edge_data>> _allEdges = new HashMap<>();
+
     private int edgeSize = 0;
+
     private int _mc = 0;
-
-
-    public graph copy(graph g) throws Exception {
-        DGraph _temp = new DGraph();
-        for (node_data n : g.getV()) {
-            _temp.addNode(n);
-        }
-        for (node_data n : g.getV()) {
-            for (edge_data e : g.getE(n.getKey())) {
-                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
-            }
-        }
-        return _temp;
-    }
-
     @Override
     public node_data getNode(int key) {//because the ID is unique and it is in order if you get the node by key it also
         //gives the node in the order of creation. O(1) easy.
@@ -36,11 +26,18 @@ public class DGraph implements graph, Serializable {
     @Override
     public edge_data getEdge(int src, int dest) {
         if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
-            nodeData tmp = (nodeData) _allNodes.get(src);
-            return tmp.edgesOf().get(dest);
+            return _allEdges.get(src).get(dest);
         }
         System.out.println("getEdge: Destination vertex or Source vertex dont exist");
         return null;
+    }
+
+    public HashMap<Integer, HashMap<Integer, edge_data>> get_allEdges() {
+        return _allEdges;
+    }
+
+    public static HashMap<Integer, node_data> get_allNodes() {
+        return _allNodes;
     }
 
     @Override
@@ -60,10 +57,14 @@ public class DGraph implements graph, Serializable {
             System.out.println("Bad Weight : Not Connected!");
         } else {
             if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
-                nodeData tmp = (nodeData) _allNodes.get(src);
-                if (!tmp._edge.containsKey(dest)) {
-                    edgeData ed = new edgeData(src, dest, w);
-                    tmp.addEdge(ed);
+                edgeData ed = new edgeData(src, dest, w);
+                if (!_allEdges.containsKey(src)) {
+                    _allEdges.put(src, new HashMap<>());
+                    _allEdges.get(src).put(dest, ed);
+                    edgeSize++;
+                    _mc++;
+                } else {
+                    _allEdges.get(src).put(dest, ed);
                     edgeSize++;
                     _mc++;
                 }
@@ -80,10 +81,7 @@ public class DGraph implements graph, Serializable {
 
     @Override
     public Collection<edge_data> getE(int node_id) {
-        nodeData tmp = (nodeData) _allNodes.get(node_id);
-        Collection<edge_data> edgeList = new ArrayList<edge_data>();
-        edgeList.addAll(tmp._edge.values());
-        return edgeList;
+        return _allEdges.get(node_id).values();
     }
 
     @Override
@@ -95,17 +93,11 @@ public class DGraph implements graph, Serializable {
         //summery : O(n)+O(n)+O(1) = O(n)!
         //_edges.get(key).clear();
         if (_allNodes.containsKey(key)) {
-            nodeData tmp = (nodeData) _allNodes.get(key);
-            int counter = tmp._edge.size();
-            edgeSize -= counter;
-            tmp._edge.clear();
-            for (node_data nd : _allNodes.values()) {
-                nodeData tmp2 = (nodeData) nd;
-                if (tmp2._edge.containsKey(key)) {
-                    tmp2._edge.remove(key);
-                    edgeSize++;
-                }
-            }
+            nodeData _temp = (nodeData) _allNodes.get(key);
+            _temp.edgesOf().clear();
+            edgeSize -= _allEdges.get(key).size();
+            _allEdges.get(key).clear();
+            _allEdges.remove(key);
             _mc++;
             return _allNodes.remove(key);
         } else {
@@ -116,15 +108,16 @@ public class DGraph implements graph, Serializable {
 
     @Override
     public edge_data removeEdge(int src, int dest) {
-        if(_allNodes.containsKey(src)&&_allNodes.containsKey(dest)){
-            nodeData tmp = (nodeData)_allNodes.get(src);
-            if(tmp._edge.containsKey(dest)){
+        if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
+            nodeData tmp = (nodeData) _allNodes.get(src);
+            tmp.deleteEdge(src, dest);
+            if (_allEdges.containsKey(src) && _allEdges.get(src).containsKey(dest)) {
                 edgeSize--;
-                return tmp._edge.remove(dest);
-            }else{
+                return _allEdges.get(src).remove(dest);
+            } else {
                 System.out.println("Edge not exist");
             }
-        }else{
+        } else {
             System.out.println("source or destination doesnt exist");
         }
         return null;
@@ -144,5 +137,19 @@ public class DGraph implements graph, Serializable {
     public int getMC() {
         return _mc;
     }
+
+    public graph copy(graph g) throws Exception {
+        graph _temp = new DGraph();
+        for (node_data n : g.getV()) {
+            _temp.addNode(n);
+        }
+        for (node_data n : g.getV()) {
+            for (edge_data e : g.getE(n.getKey())) {
+                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
+            }
+        }
+        return _temp;
+    }
+
 
 }
