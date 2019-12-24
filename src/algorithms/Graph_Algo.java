@@ -157,4 +157,16 @@ public class Graph_Algo implements graph_algorithms {
             v.setWeight(Integer.MAX_VALUE);
     }
 
+    public graph copy(DGraph g) throws Exception {
+        graph _temp = new DGraph();
+        for (node_data n : g.getV()) {
+            _temp.addNode(n);
+        }
+        for (node_data n : g.getV()) {
+            for (edge_data e : g.getE(n.getKey())) {
+                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
+            }
+        }
+        return _temp;
+    }
 }
