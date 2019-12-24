@@ -83,7 +83,7 @@ public class Graph_GUI {
                 Algo.add(isCon);
                 Algo.add(tsp);
                 Algo.add(sP);
-///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////bottom definition start
                 //actions:
                 //save
                 ActionListener saveClicked = new ActionListener() {
@@ -119,9 +119,29 @@ public class Graph_GUI {
                         StdDraw.text(-80,80, "is connected: "+g_a.isConnected());
                     }
                 };
+                isCon.addActionListener(isConn);
+                ///////////////////////////////////////////
+                //TSP:
+                ActionListener TSP = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                    }
+                };
+                tsp.addActionListener(TSP);
+
+                //////////////////////////////////////////
+                //shortestPath
+                ActionListener shortPath = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                    }
+                };
+                sP.addActionListener(shortPath);
 
 
-
+///////////////////////////////////////////////////////////////////////////-bottom definition end
                 StdDraw.frame.setJMenuBar(menu);
 
 
