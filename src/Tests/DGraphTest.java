@@ -1,7 +1,5 @@
 package Tests;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DGraphTest {
 
     @org.junit.jupiter.api.Test
