@@ -147,6 +147,7 @@ public class Graph_GUI {
 
                 drawEdges();
                 drawVertex();
+
             }
 
         } catch (Exception e) {
@@ -161,7 +162,7 @@ public class Graph_GUI {
             for (node_data a : vertex) {
                 double x = a.getLocation().x();
                 double y = a.getLocation().y();
-                StdDraw.setPenRadius(0.018);
+                StdDraw.setPenRadius(0.03);
                 StdDraw.setPenColor(StdDraw.BLUE);
                 StdDraw.point(x, y);
             }
@@ -182,7 +183,7 @@ public class Graph_GUI {
                 double d_y = g.getNode(e.getDest()).getLocation().y();
                 //draw the edge between two vertexes
                 StdDraw.setPenRadius(0.006);
-                StdDraw.setPenColor(StdDraw.YELLOW);
+                StdDraw.setPenColor(StdDraw.RED);
                 StdDraw.line(s_x, s_y, d_x, d_y);
                 //draw the weight on the middle edge
                 StdDraw.setPenRadius(0.3);
@@ -197,11 +198,11 @@ public class Graph_GUI {
     public static void main(String[] args) throws Exception {
         Graph_GUI gg = new Graph_GUI();
 
-        Point3D p = new Point3D(1, 5, 0);
-        Point3D p1 = new Point3D(10, 15);
-        Point3D p2 = new Point3D(20, 25);
-        Point3D p3 = new Point3D(30, 35);
-        Point3D p4 = new Point3D(15, 10);
+        Point3D p = new Point3D(-50, 50);
+        Point3D p1 = new Point3D(10, 75);
+        Point3D p2 = new Point3D(50, -25);
+        Point3D p3 = new Point3D(-40, -35);
+        Point3D p4 = new Point3D(15, 20);
 
 
         nodeData a = new nodeData(p, 1);
@@ -217,15 +218,18 @@ public class Graph_GUI {
         gg.addVertex(d);
         gg.addVertex(e);
 
-        gg.g.connect(a.getKey(), b.getKey(), 12);
-        gg.g.connect(b.getKey(), c.getKey(), 12);
-        gg.g.connect(c.getKey(), d.getKey(), 12);
-        gg.g.connect(d.getKey(), e.getKey(), 12);
-
+        gg.g.connect(a.getKey(), c.getKey(), b.getWeight());
+        gg.g.connect(c.getKey(), a.getKey(), c.getWeight());
+        gg.g.connect(a.getKey(), d.getKey(), d.getWeight());
+        gg.g.connect(d.getKey(), e.getKey(), d.getWeight());
+        gg.g.connect(d.getKey(), c.getKey(), a.getWeight());
+        gg.g.connect(d.getKey(), e.getKey(), c.getWeight());
+        gg.g.connect(d.getKey(), b.getKey(), d.getWeight());
+        gg.g.connect(a.getKey(), b.getKey(), e.getWeight());
+        gg.g.connect(b.getKey(), e.getKey(), b.getWeight());
+        gg.g.connect(e.getKey(), b.getKey(), d.getWeight());
         gg.drawGraph();
 
-
-        System.out.println("g.connect(p1)");
 
 
     }
