@@ -10,6 +10,7 @@ import utils.Point3D;
 import utils.StdDraw;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -94,7 +95,12 @@ public class Graph_GUI {
                 ActionListener saveClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        StdDraw.save("graph.jpg");
+                        FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+                        chooser.setVisible(true);
+                        String filename = chooser.getFile();
+                        if (filename != null) {
+                            StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+                        }
                     }
                 };
                 save.addActionListener(saveClicked);
@@ -103,7 +109,12 @@ public class Graph_GUI {
                 ActionListener loadClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        init("graph.jpg");
+                        FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.LOAD);
+                        chooser.setVisible(true);
+                        String filename = chooser.getFile();
+                        if (filename != null) {
+                         init(filename);
+                        }
                     }
                 };
                 load.addActionListener(loadClicked);
