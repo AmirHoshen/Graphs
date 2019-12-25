@@ -18,7 +18,7 @@ import java.util.Collection;
 
 public class Graph_GUI {
 
-    static DGraph g = new DGraph();
+    DGraph g = new DGraph();
     Graph_Algo g_a = new Graph_Algo();
     public void init(graph g){
         this.g = (DGraph) g;
@@ -113,7 +113,14 @@ public class Graph_GUI {
                         chooser.setVisible(true);
                         String filename = chooser.getFile();
                         if (filename != null) {
-                         init(filename);
+                            ImageIcon icon = new ImageIcon(filename);
+                            JLabel label = new JLabel(icon);
+                            JFrame f = new JFrame();
+                            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                            f.getContentPane().add(new JScrollPane(label));
+                            f.setSize(StdDraw.frame.getSize().width,StdDraw.frame.getSize().height);
+                            f.setLocation(200,200);
+                            f.setVisible(true);
                         }
                     }
                 };
