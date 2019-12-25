@@ -24,7 +24,7 @@ public class Graph_GUI {
         g_a.init(g);
     }
 
-    public void load(String file_name) {
+    public void init(String file_name) {
         try
         {
             FileInputStream file = new FileInputStream(file_name);
@@ -94,7 +94,7 @@ public class Graph_GUI {
                 ActionListener saveClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                            save("graph.jpg");
+                        StdDraw.save("graph.jpg");
                     }
                 };
                 save.addActionListener(saveClicked);
@@ -103,7 +103,7 @@ public class Graph_GUI {
                 ActionListener loadClicked = new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        load("graph.jpg");
+                        init("graph.jpg");
                     }
                 };
                 load.addActionListener(loadClicked);
