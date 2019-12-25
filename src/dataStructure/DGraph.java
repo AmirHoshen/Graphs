@@ -1,22 +1,21 @@
 package dataStructure;
 
-import algorithms.Graph_Algo;
 import elements.edgeData;
 import elements.nodeData;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class DGraph implements graph, Serializable {
-    private static HashMap<Integer, node_data> _allNodes = new HashMap<>();
+    private HashMap<Integer, node_data> _allNodes = new HashMap<>();
 
     private HashMap<Integer, HashMap<Integer, edge_data>> _allEdges = new HashMap<>();
 
     private int edgeSize = 0;
 
     private int _mc = 0;
+
     @Override
     public node_data getNode(int key) {//because the ID is unique and it is in order if you get the node by key it also
         //gives the node in the order of creation. O(1) easy.
@@ -36,7 +35,7 @@ public class DGraph implements graph, Serializable {
         return _allEdges;
     }
 
-    public static HashMap<Integer, node_data> get_allNodes() {
+    public HashMap<Integer, node_data> get_allNodes() {
         return _allNodes;
     }
 
@@ -145,7 +144,7 @@ public class DGraph implements graph, Serializable {
         }
         for (node_data n : g.getV()) {
             for (edge_data e : g.getE(n.getKey())) {
-                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
+                _temp.connect(e.getSrc(), e.getDest(), e.getWeight());
             }
         }
         return _temp;

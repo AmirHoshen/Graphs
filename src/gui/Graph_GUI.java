@@ -3,6 +3,7 @@ package gui;
 import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
+import dataStructure.graph;
 import dataStructure.node_data;
 import elements.nodeData;
 import utils.Point3D;
@@ -18,6 +19,10 @@ public class Graph_GUI {
 
     static DGraph g = new DGraph();
     Graph_Algo g_a = new Graph_Algo();
+    public void init(graph g){
+        this.g = (DGraph) g;
+        g_a.init(g);
+    }
 
     public void load(String file_name) {
         try
@@ -196,38 +201,63 @@ public class Graph_GUI {
 
 
     public static void main(String[] args) throws Exception {
+//        Graph_GUI gg = new Graph_GUI();
+//
+//        Point3D p = new Point3D(-50, 50);
+//        Point3D p1 = new Point3D(10, 75);
+//        Point3D p2 = new Point3D(50, -25);
+//        Point3D p3 = new Point3D(-40, -35);
+//        Point3D p4 = new Point3D(15, 20);
+//
+//
+//        nodeData a = new nodeData(p);
+//        nodeData b = new nodeData(p1);
+//        nodeData c = new nodeData(p2);
+//        nodeData d = new nodeData(p3);
+//        nodeData e = new nodeData(p4);
+//
+//
+//        gg.addVertex(a);
+//        gg.addVertex(b);
+//        gg.addVertex(c);
+//        gg.addVertex(d);
+//        gg.addVertex(e);
+//
+//        gg.g.connect(a.getKey(), c.getKey(), b.getWeight());
+//        gg.g.connect(c.getKey(), a.getKey(), c.getWeight());
+//        gg.g.connect(a.getKey(), d.getKey(), d.getWeight());
+//        gg.g.connect(d.getKey(), e.getKey(), d.getWeight());
+//        gg.g.connect(d.getKey(), c.getKey(), a.getWeight());
+//        gg.g.connect(d.getKey(), e.getKey(), c.getWeight());
+//        gg.g.connect(d.getKey(), b.getKey(), d.getWeight());
+//        gg.g.connect(a.getKey(), b.getKey(), e.getWeight());
+//        gg.g.connect(b.getKey(), e.getKey(), b.getWeight());
+//        gg.g.connect(e.getKey(), b.getKey(), d.getWeight());
+//        gg.drawGraph();
         Graph_GUI gg = new Graph_GUI();
+        graph graph = new DGraph();
+        Graph_Algo g = new Graph_Algo();
 
-        Point3D p = new Point3D(-50, 50);
-        Point3D p1 = new Point3D(10, 75);
-        Point3D p2 = new Point3D(50, -25);
-        Point3D p3 = new Point3D(-40, -35);
-        Point3D p4 = new Point3D(15, 20);
-
-
-        nodeData a = new nodeData(p, 1);
-        nodeData b = new nodeData(p1, 10);
-        nodeData c = new nodeData(p2, 12);
-        nodeData d = new nodeData(p3, 22);
-        nodeData e = new nodeData(p4, 16);
+        node_data n1 = new nodeData(new Point3D(-20,-20));
+        node_data n2 = new nodeData(new Point3D(0,0));
+        node_data n3 = new nodeData(new Point3D(40,20));
+        node_data n4 = new nodeData(new Point3D(15,50));
 
 
-        gg.addVertex(a);
-        gg.addVertex(b);
-        gg.addVertex(c);
-        gg.addVertex(d);
-        gg.addVertex(e);
+        graph.addNode(n1);
+        graph.addNode(n2);
+        graph.addNode(n3);
+        graph.addNode(n4);
 
-        gg.g.connect(a.getKey(), c.getKey(), b.getWeight());
-        gg.g.connect(c.getKey(), a.getKey(), c.getWeight());
-        gg.g.connect(a.getKey(), d.getKey(), d.getWeight());
-        gg.g.connect(d.getKey(), e.getKey(), d.getWeight());
-        gg.g.connect(d.getKey(), c.getKey(), a.getWeight());
-        gg.g.connect(d.getKey(), e.getKey(), c.getWeight());
-        gg.g.connect(d.getKey(), b.getKey(), d.getWeight());
-        gg.g.connect(a.getKey(), b.getKey(), e.getWeight());
-        gg.g.connect(b.getKey(), e.getKey(), b.getWeight());
-        gg.g.connect(e.getKey(), b.getKey(), d.getWeight());
+        graph.connect(0,1,8);
+        graph.connect(0,3,9);
+        graph.connect(1,2,4);
+        graph.connect(2,3,1);
+        graph.connect(3,0,4);
+        graph.connect(1,0,5);
+        g.init(graph);
+        gg.init(graph);
+        System.out.println(g.isConnected());
         gg.drawGraph();
 
 

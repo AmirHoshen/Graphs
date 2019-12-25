@@ -27,13 +27,9 @@ public class nodeData implements node_data {
         _location = new Point3D(0, 0);
     }
 
-    public nodeData(Point3D location, double weight) throws Exception {
-        if(weight<=0){
-            throw new Exception("nodeData: (location,weight)->Weight isn't Correct, should be Positive!");
-        }
+    public nodeData(Point3D location) throws Exception {
         this._key = _id;
         this._id++;
-        _weight = weight;
         _location = new Point3D(location);
         _tag = -1;
         _info = "";

@@ -96,10 +96,13 @@ public class Graph_Algo implements graph_algorithms {
     public List<node_data> shortestPath(int src, int dest) {
         if (src == dest)
             return null;
+        PriorityQueue<node_data> priorityQueue = new PriorityQueue<>(comparator);
         ArrayList<node_data> _neighbors = new ArrayList<>();
-        for (edge_data e : _graph.getE(src))
-            _neighbors.add(_graph.getNode(e.getDest()));
         dijkstra(_graph.getNode(src));
+        for (edge_data e : _graph.getE(src))
+            priorityQueue.add(_graph.getNode(e.getDest()));
+        while(!priorityQueue.isEmpty())
+            _neighbors.add(priorityQueue.poll());
         return _neighbors;
     }
 
