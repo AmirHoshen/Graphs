@@ -94,16 +94,33 @@ public class Graph_Algo implements graph_algorithms {
 
     @Override
     public List<node_data> shortestPath(int src, int dest) {
-        if (src == dest)
-            return null;
-        PriorityQueue<node_data> priorityQueue = new PriorityQueue<>(comparator);
-        ArrayList<node_data> _neighbors = new ArrayList<>();
+        if (src == dest){
+            ArrayList<node_data> _self = new ArrayList<>();_self.add(_graph.getNode(src));
+            return _self;
+        }
+        ArrayList<node_data> pathToSrc = new ArrayList<>();
         dijkstra(_graph.getNode(src));
-        for (edge_data e : _graph.getE(src))
-            priorityQueue.add(_graph.getNode(e.getDest()));
-        while(!priorityQueue.isEmpty())
-            _neighbors.add(priorityQueue.poll());
-        return _neighbors;
+        nodeData _temp = (nodeData) _graph.getNode(dest);
+        while(_temp.get_prev()!=-1) {
+            pathToSrc.add(_temp);
+            _temp = (nodeData) _graph.getNode(_temp.get_prev());
+        }
+        pathToSrc.add(_temp);
+        return pathToSrc;
+    }
+    public void shortestPathToString(List<node_data> l){
+        String ans = "";
+        Stack<node_data> s = new Stack<>();
+        for(node_data n : l){
+            s.add(n);
+        }
+        while(!s.empty()){
+            if(s.size()>1)
+                ans += s.pop().getKey()+" >> ";
+            else
+                ans += s.peek().getKey()+" : " +s.pop().getWeight(); ;
+        }
+        System.out.println(ans);
     }
 
     private Collection<node_data> neighbors(node_data node_data) {
