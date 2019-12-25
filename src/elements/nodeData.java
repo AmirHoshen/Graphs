@@ -21,6 +21,7 @@ public class nodeData implements node_data {
     public nodeData() {
         this._key = _id;
         this._id++;
+        this._prev = -1;
         this._info="";
         this._tag = -1;
         _weight = 0;//check for logic if it should have empty constructor!
@@ -30,6 +31,7 @@ public class nodeData implements node_data {
     public nodeData(Point3D location) throws Exception {
         this._key = _id;
         this._id++;
+        this._prev = -1;
         _location = new Point3D(location);
         _tag = -1;
         _info = "";
@@ -38,6 +40,7 @@ public class nodeData implements node_data {
     public nodeData(nodeData nd) {
         this._key = nd._key;
         this._weight = nd._weight;
+        this._prev = nd._prev;
         this._location = new Point3D(nd.getLocation());
         this._tag = nd._tag;
         this._info = nd._info;
