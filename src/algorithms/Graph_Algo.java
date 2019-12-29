@@ -1,28 +1,33 @@
 package algorithms;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Stack;
-
 import dataStructure.DGraph;
+import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
-import dataStructure.edge_data;
 import elements.nodeData;
-import utils.Point3D;
+
+import java.io.*;
+import java.util.*;
 
 /**
- * This empty class represents the set of graph-theory algorithms
- * which should be implemented as part of Ex2 - Do edit this class.
+ * This class represents the set of graph-theory algorithms
+ * which should be implemented as part of Ex2
+ * <p>
+ * takes a DGraph and "Wraps" it with the algorithms of Graph_Algo
  *
- * @author
+ * @author Peleg Z & Amir H
  */
-public class Graph_Algo implements graph_algorithms {
-    private graph _graph;
+public class Graph_Algo implements graph_algorithms, Serializable {
+    public graph _graph;
 
+    public Graph_Algo() {
+        this._graph = new DGraph();
+    }
+
+    /**
+     * Comparator to determine what node to take next in Dijkstra algorithm
+     * the node with the least weight will be the first!
+     */
     private Comparator<node_data> comparator = new Comparator<node_data>() {
         @Override
         public int compare(node_data o1, node_data o2) {
@@ -35,158 +40,314 @@ public class Graph_Algo implements graph_algorithms {
         }
     };
 
+    /**
+     * initializing the grapg in Grapg_Algo to be the graph in the parameter
+     *
+     * @param g - the graph to be wrapped in the Graph_Algo
+     */
     @Override
     public void init(graph g) {
         this._graph = g;
-//        for (node_data n:g.getV()) {
-//            _graph.addNode(n);
-//            for (edge_data e : g.getE(n.getKey())) {
-//                try {
-//                    _graph.connect(n.getKey(), e.getDest(), e.getWeight());
-//                } catch (Exception ex) {
-//                }
-//            }
-//        }
     }
 
+    /**
+     * take a String of the Dir and file name with its extension and creates a Graph object and init it with init(Graph)
+     *
+     * @param file_name - Dir + filename + ".txt" extension
+     */
     @Override
     public void init(String file_name) {
-        // TODO Auto-generated method stub
+        deserialize(file_name);
 
     }
 
+    /**
+     * take a String of the Dir and file name with its extension and saves it to the place specified in the string
+     *
+     * @param file_name - Dir + filename + ".txt" extension
+     */
     @Override
     public void save(String file_name) {
-        // TODO Auto-generated method stub
+        serialize(file_name);
+    }
+
+    /**
+     * creates txt file with the Graph Object to later be able to load from
+     *
+     * @param file_name - dir + file name + .txt
+     */
+    private void serialize(String file_name) {
+        try {
+            FileOutputStream file = new FileOutputStream(file_name);
+            ObjectOutputStream out = new ObjectOutputStream(file);
+
+            out.writeObject(this._graph);
+
+            out.close();
+            file.close();
+
+            System.out.println("Object has benn serialized");
+        } catch (IOException e) {
+            System.err.println("IOException is caught,Object didnt save.");
+        }
 
     }
 
+    /**
+     * Creates Graph object from the saved txt file and then uses init to initialize the Graph_Algo
+     *
+     * @param file_name - dir + file name + .txt
+     */
+    private void deserialize(String file_name) {
+        try {
+            FileInputStream file = new FileInputStream(file_name);
+            ObjectInputStream in = new ObjectInputStream(file);
+
+            this._graph = (graph) in.readObject();
+
+            in.close();
+            file.close();
+
+            System.out.println("Object has been deserialized");
+        } catch (IOException e) {
+            System.err.println("IOException is caught,object didnt uploaded");
+        } catch (ClassNotFoundException e) {
+            System.err.println("ClassNotFoundException is caught,object didnt uploaded");
+        }
+    }
+
+    /**
+     * SC - Check if the _graph is Strong Connected by checking each node is reachable from every node
+     * will take every edge of the first arbitrary node and will try reach every other node it is connected to via
+     * its neighbors using DFS approach it will check if every node was reached will return false if one of the nodes
+     * wasn't visited (tag == -1 is not Visited) then it will flip the edges direction and will do DFS again and if
+     * the node we first selected cant reach one of the other nodes will return false if it could reach every node
+     * after flipping the edges it will return true (Strong Connectivity)
+     *
+     * @return true if every node is reachable from every node false if otherwise O(|V|+|E|)
+     */
     @Override
     public boolean isConnected() {
-        resetVisits();
-        boolean ans = true;
-        Stack<node_data> stack = new Stack<>();
-        stack.addAll(_graph.getV());
-        while (!stack.empty()) {
-            node_data v = stack.pop();
-            if (v.getTag() == -1) {
-                v.setTag(1);
-                for (node_data e : neighbors(v)) {
-                    stack.push(e);
-                }
-            }
+        Graph_Algo _temp = new Graph_Algo();
+        _temp.init(this.copy());
+        _temp.resetVisits();
+        nodeData node = (nodeData) _temp._graph.getV().iterator().next();
+        DFS(node.getKey(), _temp);
+        for (node_data n : _temp._graph.getV()) {
+            if (n.getTag() == -1)
+                return false;
         }
-        for (node_data v : _graph.getV())
-            if (v.getTag() != 1) {
-                ans = false;
-                return ans;
-            }
-        return ans;
+        Transpose(_temp);
+        _temp.resetVisits();
+        DFS(node.getKey(), _temp);
+        for (node_data n : _temp._graph.getV()) {
+            if (n.getTag() == -1)
+                return false;
+        }
+        return true;
     }
 
+    /**
+     * Searches via DFS for the neighbors of the node that was given and will tag them as Visited ( tag == 1)
+     * works recursively
+     *
+     * @param key - source of the visited node
+     * @param g   - graph to search in
+     */
+    private void DFS(int key, Graph_Algo g) {
+        g._graph.getNode(key).setTag(1);
+        Iterator<edge_data> i = g._graph.getE(key).iterator();
+        int n;
+        while (i.hasNext()) {
+            n = i.next().getDest();
+            if (g._graph.getNode(n).getTag() == -1)
+                DFS(n, g);
+        }
+    }
+
+    /**
+     * Flips the edges direction for the given graph temporary graph will be given via isConnected() method
+     *
+     * @param g - temp graph from isConnected()
+     */
+    private void Transpose(Graph_Algo g) {
+        HashMap<node_data, Collection> _temp = new HashMap<>();
+        for (node_data n : g._graph.getV()) {
+            _temp.put(n, new ArrayList());
+            _temp.get(n).addAll(g._graph.getE(n.getKey()));
+            g._graph.getE(n.getKey()).clear();//doesnt reduce the num of edges with clear (temp graph edge size Double!)
+        }
+        for (node_data n : _temp.keySet()) {
+            Iterator<edge_data> i = _temp.get(n).iterator();
+            while (i.hasNext()) {
+                edge_data e = i.next();
+                g._graph.connect(e.getDest(), e.getSrc(), e.getWeight());
+            }
+        }
+        //notice : by clearing the Edge Collection Edge size will be Changed but it will be on the temp Graph
+        //so the main graph isn't changed so no panic if num of edges doubles it will only appear in the temp Graph!
+    }
+
+    /**
+     * Searches for the shortest route from source to destination using dijkstra algorithm and return the distance
+     *
+     * @param src  - start node
+     * @param dest - end (target) node
+     * @return - return the distance of the path between source to destination node
+     */
     @Override
-    public double shortestPathDist(int src, int dest) {//check if src==dest if so return 0
-        if (src == dest)
-            return 0;
-        dijkstra(_graph.getNode(src));
+    public double shortestPathDist(int src, int dest) {
+        dijkstra(src);
         return _graph.getNode(dest).getWeight();
     }
 
+    /**
+     * Searches for the shortest route from source to destination using dijkstra algorithm and returns a list of nodes
+     * it was going through from the starting to the destination node
+     *
+     * @param src  - start node
+     * @param dest - end (target) node
+     * @return - list of nodes  from the start to the End
+     */
     @Override
-    public List<node_data> shortestPath(int src, int dest) {
-        if (src == dest){
-            ArrayList<node_data> _self = new ArrayList<>();_self.add(_graph.getNode(src));
+    public List<node_data> shortestPath(int src, int dest) {//from Start to the end
+        if (src == dest) {
+            ArrayList<node_data> _self = new ArrayList<>();
+            _self.add(_graph.getNode(src));
             return _self;
         }
         ArrayList<node_data> pathToSrc = new ArrayList<>();
-        dijkstra(_graph.getNode(src));
-        nodeData _temp = (nodeData) _graph.getNode(dest);
-        while(_temp.get_prev()!=-1) {
+        dijkstra(_graph.getNode(src).getKey());
+        node_data _temp = _graph.getNode(dest);
+        int n;
+        while (_temp.getInfo() != null && _temp.getKey() != src) {
             pathToSrc.add(_temp);
-            _temp = (nodeData) _graph.getNode(_temp.get_prev());
+            n = Integer.parseInt(_temp.getInfo());
+            _temp = _graph.getNode(n);
         }
         pathToSrc.add(_temp);
+        Stack<node_data> s = new Stack<>();
+        for (node_data i : pathToSrc) {
+            s.add(i);
+        }
+        pathToSrc.clear();
+        while (!s.empty()) {//reverse order of the path to begin from the start >> end
+            pathToSrc.add(s.pop());
+        }
         return pathToSrc;
     }
-    public void shortestPathToString(List<node_data> l){
-        String ans = "";
-        Stack<node_data> s = new Stack<>();
-        for(node_data n : l){
+
+    /**
+     * printing function for visual representation of the route the shortest path is making plus the distance
+     *
+     * @param l - list of nodes from the starting point to the end of the shortestPath(src,dest) function
+     */
+    public void shortestPathToString(List<node_data> l) {//prints path from start to end
+        String ans = "Path: ";
+        Queue<node_data> s = new LinkedList<>();
+        for (node_data n : l) {
             s.add(n);
         }
-        while(!s.empty()){
-            if(s.size()>1)
-                ans += s.pop().getKey()+" >> ";
+        while (!s.isEmpty()) {
+            if (s.size() > 1)
+                ans += s.poll().getKey() + " >> ";
             else
-                ans += s.peek().getKey()+" : " +s.pop().getWeight(); ;
+                ans += s.peek().getKey() + " | Distance: " + s.poll().getWeight();
+            ;
         }
         System.out.println(ans);
     }
 
-    private Collection<node_data> neighbors(node_data node_data) {
-        ArrayList<node_data> temp = new ArrayList<>();
-        for (edge_data edge_data : _graph.getE(node_data.getKey()))
-            temp.add(_graph.getNode(edge_data.getDest()));
-        return temp;
-    }
-
-    private void dijkstra(node_data id) {
-        resetVisits();
-        resetWeights();
-        id.setWeight(0);
-        PriorityQueue<node_data> priorityQueue = new PriorityQueue<>(comparator);
-        for (node_data nd : _graph.getV()) {
-            priorityQueue.add(nd);
-        }
-        while (!priorityQueue.isEmpty()) {
-            node_data _temp = priorityQueue.poll();
-            for (node_data n : neighbors(_temp)) {//takes one of the neighbors
-                double t;
-                if (n.getTag() == -1) {
-                    t = _temp.getWeight() + _graph.getEdge(_temp.getKey(), n.getKey()).getWeight();//node + edge weight
-                    if(n.getWeight()>t){
-                        n.setWeight(t);
-                        nodeData _tempN = (nodeData)n;
-                        ((nodeData) n).set_prev(_temp.getKey());
-                    }
-                }
-            }
-            _temp.setTag(1);//visited on the lowest weight
-        }
-    }
-
+    /**
+     * Creates A path of the nodes to go through the targets list where each target is tagged at least once
+     * with the shortest path (relatively)
+     *
+     * @param targets
+     * @return
+     */
     @Override
     public List<node_data> TSP(List<Integer> targets) {
-        // TODO Auto-generated method stub
-        return null;
+        if (!isConnected())
+            return null;
+        if (targets.size() == 0 || targets == null)
+            return null;
+        if (targets.size() == 1)
+            return shortestPath(targets.get(0), targets.get(0));
+
+        List<node_data> paths = new LinkedList<>();
+        for (int i = 0; i < targets.size() - 1; i++) {
+            //adding all the shortest paths through every member of the targets list : relatively shortest (by order)
+            paths.addAll(shortestPath(targets.get(i), targets.get(i + 1)));
+        }
+        return paths;
     }
 
+    /**
+     * creates new DGraph and with iterators copies its content to the new DGraph
+     *
+     * @return - new freshly made Graph!
+     */
     @Override
     public graph copy() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void resetVisits() {
-        for (node_data v : _graph.getV())
-            v.setTag(-1);
-    }
-
-    public void resetWeights() {
-        for (node_data v : _graph.getV())
-            v.setWeight(Integer.MAX_VALUE);
-    }
-
-    public graph copy(DGraph g) throws Exception {
         graph _temp = new DGraph();
-        for (node_data n : g.getV()) {
+        for (node_data n : _graph.getV()) {
             _temp.addNode(n);
         }
-        for (node_data n : g.getV()) {
-            for (edge_data e : g.getE(n.getKey())) {
-                _temp.connect(e.getSrc(),e.getDest(),e.getWeight());
+        for (node_data n : _graph.getV()) {
+            for (edge_data e : _graph.getE(n.getKey())) {
+                _temp.connect(e.getSrc(), e.getDest(), e.getWeight());
             }
         }
         return _temp;
+    }
+
+    /**
+     * Private use function in Dijkstra : reset every node to be -1 ( not Visited)
+     */
+    private void resetVisits() {
+        for (node_data n : _graph.getV()) {
+            n.setTag(-1);
+        }
+    }
+
+    /**
+     * Private use function in Dijkstra : reset the weight of each node to be infinity ( MAX.VALUE)
+     */
+    private void resetWeights() {
+        for (node_data node : _graph.getV()) {
+            node.setWeight(Integer.MAX_VALUE);
+        }
+    }
+
+    /**
+     * Private use function in shortestPath: starting from the source node searching neighbors and computing
+     * the shortest path from the source to its neighbors and each neighbor to their neighbor
+     *
+     * @param src - source node to start with
+     */
+    private void dijkstra(int src) {
+        resetVisits();
+        resetWeights();
+        PriorityQueue<node_data> node_dataPriorityQueue = new PriorityQueue<>(comparator);
+        node_dataPriorityQueue.add(_graph.getNode(src));
+        node_dataPriorityQueue.peek().setWeight(0);
+        while (!node_dataPriorityQueue.isEmpty()) {
+            node_data _tempSrc = node_dataPriorityQueue.poll();
+            if (_tempSrc.getTag() == -1) {
+                _tempSrc.setTag(1);
+                Collection<edge_data> edges = _graph.getE(_tempSrc.getKey());
+                for (edge_data edge : edges) {
+                    nodeData _tempDest = (nodeData) _graph.getNode(edge.getDest());
+                    if (_tempDest.getWeight() > _tempSrc.getWeight() + edge.getWeight()) {
+                        _tempDest.setWeight(_tempSrc.getWeight() + edge.getWeight());
+                        if (_tempDest.getKey() != src)
+                            _tempDest.setInfo(_tempSrc.getKey() + "");
+                        if (_tempDest.getTag() == -1) {
+                            node_dataPriorityQueue.add(_tempDest);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

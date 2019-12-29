@@ -6,62 +6,86 @@ import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
 import elements.nodeData;
-import utils.Point3D;
 import utils.StdDraw;
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-public class Graph_GUI {
+public class Graph_GUI extends JFrame implements ActionListener {
 
-    DGraph g = new DGraph();
+    graph g = new DGraph();
     Graph_Algo g_a = new Graph_Algo();
-    public void init(graph g){
-        this.g = (DGraph) g;
+
+    public void init(graph g) {
+        this.g = g;
         g_a.init(g);
     }
 
-    public void init(String file_name) {
-        try
-        {
-            FileInputStream file = new FileInputStream(file_name);
-            ObjectInputStream in = new ObjectInputStream(file);
-            g = (DGraph)in.readObject();
-            in.close();
-            file.close();
-            System.out.println("Object has been deserialized");
-        }
-
-        catch(IOException | ClassNotFoundException ex)
-        {
-            System.out.println("IOException is caught");
+    private void load() {
+        Graph_Algo ga = new Graph_Algo();
+        JFileChooser jf = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        int returnV = jf.showOpenDialog(null);
+        if (returnV == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = jf.getSelectedFile();
+            ga.init(selectedFile.getAbsolutePath());
+            this.g = ga.copy();
+            repaint();
         }
     }
 
-    public void save(String file_name) {
-        try
-        {
-            FileOutputStream file = new FileOutputStream(file_name);
-            ObjectOutputStream out = new ObjectOutputStream(file);
-            out.writeObject(g);
-            out.close();
-            file.close();
-
-            System.out.println("Object has been serialized");
-        }
-        catch(IOException ex)
-        {
-            System.out.println("IOException is caught");
+    public void save() {
+        Graph_Algo ga = new Graph_Algo();
+        ga.init(g);
+        JFileChooser jf = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        int returnV = jf.showOpenDialog(null);
+        if (returnV == JFileChooser.APPROVE_OPTION) {
+            try {
+                ga.save(jf.getSelectedFile() + ".txt");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
-    public void addVertex(nodeData n) {
-        g.addNode(n);
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String act = e.getActionCommand();
+        switch (act) {
+            case "Save":
+                save();
+                break;
+            case "Load":
+                load();
+                break;
+            case "is Connected":
+                isConnected();
+                break;
+            case "Shortest Path":
+                shotestPath();
+                break;
+            case "TSP":
+                TSPEnterNodes();
+                break;
+            default:
+                break;
+        }
     }
+
+    private void isConnected() {
+
+        if (g_a != null) {
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.setPenRadius(3);
+            StdDraw.text(-80, 80, "is connected: " + g_a.isConnected());
+        }
+    }
+
 
     public void drawGraph() {
         try {
@@ -72,109 +96,48 @@ public class Graph_GUI {
 
                 //menu bar
                 JMenuBar menu = new JMenuBar();
-
-
-                JMenu file = new JMenu("File");
+                JMenu file = new JMenu("File options");
                 menu.add(file);
                 JMenuItem save = new JMenuItem("Save");
                 JMenuItem load = new JMenuItem("Load");
+                JMenuItem isCon = new JMenuItem("is Connected");
+                JMenuItem tsp = new JMenuItem("TSP");
+                JMenuItem sP = new JMenuItem("Shortest Path");
                 file.add(save);
                 file.add(load);
+                file.add(isCon);
+                file.add(tsp);
+                file.add(sP);
+                save.addActionListener(this);
+                load.addActionListener(this);
+                isCon.addActionListener(this);
+                tsp.addActionListener(this);
+                sP.addActionListener(this);
 
-                JMenu Algo = new JMenu("Algo");
-                menu.add(Algo);
-                JMenuItem isCon = new JMenuItem("isConnected");
-                JMenuItem tsp = new JMenuItem("TSP");
-                JMenuItem sP = new JMenuItem("shortest_Path");
-                Algo.add(isCon);
-                Algo.add(tsp);
-                Algo.add(sP);
-///////////////////////////////////////////////////////////////////////bottom definition start
-                //actions:
-                //save
-                ActionListener saveClicked = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-                        chooser.setVisible(true);
-                        String filename = chooser.getFile();
-                        if (filename != null) {
-                            StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
-                        }
-                    }
-                };
-                save.addActionListener(saveClicked);
-
-                //load:
-                ActionListener loadClicked = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.LOAD);
-                        chooser.setVisible(true);
-                        String filename = chooser.getFile();
-                        if (filename != null) {
-                            ImageIcon icon = new ImageIcon(filename);
-                            JLabel label = new JLabel(icon);
-                            JFrame f = new JFrame();
-                            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                            f.getContentPane().add(new JScrollPane(label));
-                            f.setSize(StdDraw.frame.getSize().width,StdDraw.frame.getSize().height);
-                            f.setLocation(200,200);
-                            f.setVisible(true);
-                        }
-                    }
-                };
-                load.addActionListener(loadClicked);
-////////////////////////////////////////////////////////////////////////
-                //algo:
-                //isConnected:
-                ActionListener isConn = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            g_a.copy(g);
-                        } catch (Exception ex) {
-                            System.out.println("something went wrong: (Graph_GUI:line:114)");
-                            ex.printStackTrace();
-                        }
-                        StdDraw.setPenColor(StdDraw.BLACK);
-                        StdDraw.setPenRadius(0.6);
-                        StdDraw.text(-80,80, "is connected: "+g_a.isConnected());
-                    }
-                };
-                isCon.addActionListener(isConn);
-                ///////////////////////////////////////////
-                //TSP:
-                ActionListener TSP = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                    }
-                };
-                tsp.addActionListener(TSP);
-
-                //////////////////////////////////////////
-                //shortestPath
-                ActionListener shortPath = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                    }
-                };
-                sP.addActionListener(shortPath);
-
-
-///////////////////////////////////////////////////////////////////////////-bottom definition end
                 StdDraw.frame.setJMenuBar(menu);
-
 
                 drawEdges();
                 drawVertex();
+                drawVertexKey();
 
             }
 
         } catch (Exception e) {
-            System.out.println();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void drawVertexKey() {
+        try {
+            Collection<node_data> vertex = g.getV();
+            for (node_data a : vertex) {
+                double x = a.getLocation().x() - 0.01;
+                double y = a.getLocation().y() - 0.4;
+                StdDraw.setPenRadius(0.009);
+                StdDraw.setPenColor(StdDraw.BLACK);
+                StdDraw.text(x, y, "" + a.getKey());
+            }
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -185,8 +148,8 @@ public class Graph_GUI {
             for (node_data a : vertex) {
                 double x = a.getLocation().x();
                 double y = a.getLocation().y();
-                StdDraw.setPenRadius(0.03);
-                StdDraw.setPenColor(StdDraw.BLUE);
+                StdDraw.setPenRadius(0.04);
+                StdDraw.setPenColor(StdDraw.BOOK_BLUE);
                 StdDraw.point(x, y);
             }
         } catch (Exception e) {
@@ -205,80 +168,77 @@ public class Graph_GUI {
                 double d_x = g.getNode(e.getDest()).getLocation().x();
                 double d_y = g.getNode(e.getDest()).getLocation().y();
                 //draw the edge between two vertexes
-                StdDraw.setPenRadius(0.006);
+                StdDraw.setPenRadius(0.004);
                 StdDraw.setPenColor(StdDraw.RED);
                 StdDraw.line(s_x, s_y, d_x, d_y);
                 //draw the weight on the middle edge
+                StdDraw.setPenColor(StdDraw.YELLOW);
+                StdDraw.setPenRadius(0.019);
+                StdDraw.filledCircle((0.2) * s_x + (0.8) * d_x, (0.2) * s_y + (0.8) * d_y, 0.6);
                 StdDraw.setPenRadius(0.3);
-                StdDraw.setPenColor(StdDraw.BLACK);
+                StdDraw.setPenColor(StdDraw.RED);
                 String weight = Double.toString(e.getWeight());
-                StdDraw.text((0.8) * s_x + (0.2) * d_x, (0.8) * s_y + (0.2) * d_y, weight);
+                StdDraw.text((0.65) * s_x + (0.35) * d_x, (0.65) * s_y + (0.35) * d_y, weight);
             }
         }
     }
 
+    private void shotestPath() {
+        drawGraph();
+        JFrame jinput = new JFrame();
+        String fromS = JOptionPane.showInputDialog(jinput, "Enter From");
+        String to = JOptionPane.showInputDialog(jinput, "Enter To");
+        fromS = fromS.trim();
+        to = to.trim();
+        try {
+            int fromN = Integer.parseInt(fromS);
+            int toN = Integer.parseInt(to);
+            Graph_Algo ga = new Graph_Algo();
+            ga.init(g);
+            List<node_data> ans = ga.shortestPath(fromN, toN);
+            for (int j = 0; j < ans.size() - 1; j++) {
+                StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
+                StdDraw.line(ans.get(j).getLocation().ix(), ans.get(j).getLocation().iy(), ans.get(j + 1).getLocation().ix(), ans.get(j + 1).getLocation().iy());
+            }
+            drawVertex();
+            drawVertexKey();
+            repaint();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void TSPEnterNodes() {
+        drawGraph();
+        JFrame jinput = new JFrame();
+        JOptionPane.showMessageDialog(jinput, "To get TSP enter all the nodes from start node to end node \n after you are done enter DONE");
+        ArrayList<Integer> arrayTSP = new ArrayList<Integer>();
+        String ans;
+        do {
+            ans = JOptionPane.showInputDialog(jinput, "Enter node or DONE when it is the last node");
+            if (ans.equalsIgnoreCase("done")) {
+                break;
+            }
+            try {
+                arrayTSP.add(Integer.parseInt(ans));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } while (!ans.equalsIgnoreCase("done"));
+        Graph_Algo ga = new Graph_Algo();
+        ga.init(g);
+        List<node_data> ansTSP = ga.TSP(arrayTSP);
+        for (int j = 0; j < ansTSP.size() - 1; j++) {
+            StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
+            StdDraw.line(ansTSP.get(j).getLocation().ix(), ansTSP.get(j).getLocation().iy(), ansTSP.get(j + 1).getLocation().ix(), ansTSP.get(j + 1).getLocation().iy());
+        }
+        drawVertex();
+        drawVertexKey();
+        repaint();
+    }
+
 
     public static void main(String[] args) throws Exception {
-//        Graph_GUI gg = new Graph_GUI();
-//
-//        Point3D p = new Point3D(-50, 50);
-//        Point3D p1 = new Point3D(10, 75);
-//        Point3D p2 = new Point3D(50, -25);
-//        Point3D p3 = new Point3D(-40, -35);
-//        Point3D p4 = new Point3D(15, 20);
-//
-//
-//        nodeData a = new nodeData(p);
-//        nodeData b = new nodeData(p1);
-//        nodeData c = new nodeData(p2);
-//        nodeData d = new nodeData(p3);
-//        nodeData e = new nodeData(p4);
-//
-//
-//        gg.addVertex(a);
-//        gg.addVertex(b);
-//        gg.addVertex(c);
-//        gg.addVertex(d);
-//        gg.addVertex(e);
-//
-//        gg.g.connect(a.getKey(), c.getKey(), b.getWeight());
-//        gg.g.connect(c.getKey(), a.getKey(), c.getWeight());
-//        gg.g.connect(a.getKey(), d.getKey(), d.getWeight());
-//        gg.g.connect(d.getKey(), e.getKey(), d.getWeight());
-//        gg.g.connect(d.getKey(), c.getKey(), a.getWeight());
-//        gg.g.connect(d.getKey(), e.getKey(), c.getWeight());
-//        gg.g.connect(d.getKey(), b.getKey(), d.getWeight());
-//        gg.g.connect(a.getKey(), b.getKey(), e.getWeight());
-//        gg.g.connect(b.getKey(), e.getKey(), b.getWeight());
-//        gg.g.connect(e.getKey(), b.getKey(), d.getWeight());
-//        gg.drawGraph();
-        Graph_GUI gg = new Graph_GUI();
-        graph graph = new DGraph();
-        Graph_Algo g = new Graph_Algo();
-
-        node_data n1 = new nodeData(new Point3D(-20,-20));
-        node_data n2 = new nodeData(new Point3D(0,0));
-        node_data n3 = new nodeData(new Point3D(40,20));
-        node_data n4 = new nodeData(new Point3D(15,50));
-
-
-        graph.addNode(n1);
-        graph.addNode(n2);
-        graph.addNode(n3);
-        graph.addNode(n4);
-
-        graph.connect(0,1,8);
-        graph.connect(0,3,9);
-        graph.connect(1,2,4);
-        graph.connect(2,3,1);
-        graph.connect(3,0,4);
-        graph.connect(1,0,5);
-        g.init(graph);
-        gg.init(graph);
-        System.out.println(g.isConnected());
-        gg.drawGraph();
-
-
-
     }
 }

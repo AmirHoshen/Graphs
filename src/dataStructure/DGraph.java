@@ -1,154 +1,212 @@
 package dataStructure;
 
-import elements.edgeData;
 import elements.nodeData;
+import elements.nodeEdge;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class DGraph implements graph, Serializable {
-    private HashMap<Integer, node_data> _allNodes = new HashMap<>();
+    /***
+     * Directional Graph Implementation:
+     * _allNodesFast - to get all the nodes in the graph in O(1)
+     * _allNodes - holder of the nodes but with access time and search time of O(1)
+     * _allEdges - holds all edges used for getting specific edge using src and dest keys
+     * edgeSize - number of edges in the graph ( not really used)
+     * mc - Mode Count ( Not used)
+     */
+    private ArrayList<node_data> _allNodeFast;
+    private HashMap<Integer, node_data> _allNodes;
+    private HashMap<Integer, HashMap<Integer, edge_data>> _allEdges;
+    private int edgeSize;
+    private int mc;
 
-    private HashMap<Integer, HashMap<Integer, edge_data>> _allEdges = new HashMap<>();
-
-    private int edgeSize = 0;
-
-    private int _mc = 0;
-
-    @Override
-    public node_data getNode(int key) {//because the ID is unique and it is in order if you get the node by key it also
-        //gives the node in the order of creation. O(1) easy.
-        return _allNodes.get(key);
+    /**
+     * default Constructor : creates Empty Graph
+     */
+    public DGraph() {
+        this._allNodeFast = new ArrayList<>();
+        this._allNodes = new HashMap<>();
+        this._allEdges = new HashMap<>();
+        this.edgeSize = 0;
+        this.mc = 0;
     }
 
+    /**
+     * getting node_data via node key (id)
+     *
+     * @param key - the node_id
+     * @return
+     */
+    @Override
+    public node_data getNode(int key) {
+        if (!_allNodes.containsKey(key)) {
+            System.out.println("getNode(int key): node doesn't exist!");
+            return null;
+        } else {
+            return _allNodes.get(key);
+        }
+    }
+
+    /**
+     * getting specific edge using source and destination keys
+     *
+     * @param src  - starting node
+     * @param dest - ending node
+     * @return - edge_data
+     */
     @Override
     public edge_data getEdge(int src, int dest) {
-        if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
-            return _allEdges.get(src).get(dest);
+        if (!_allNodes.containsKey(src) || !_allNodes.containsKey(dest)) {
+            System.out.println("getEdge(src,dest): one of the nodes missing!");
+            return null;
+        } else {
+            if (_allEdges.get(src).containsKey(dest))//only if src contains dest in its hashMap keys!
+                return _allEdges.get(src).get(dest);
+            else
+                return null;
         }
-        System.out.println("getEdge: Destination vertex or Source vertex dont exist");
-        return null;
     }
 
-    public HashMap<Integer, HashMap<Integer, edge_data>> get_allEdges() {
-        return _allEdges;
-    }
-
-    public HashMap<Integer, node_data> get_allNodes() {
-        return _allNodes;
-    }
-
+    /**
+     * adds node to _allNodes & _allNodesFast and adding one to the Mode Count
+     *
+     * @param n - node to be added
+     */
     @Override
     public void addNode(node_data n) {
-        nodeData node = (nodeData) n;
-        if (!_allNodes.containsKey(node.getKey())) {
-            _mc++;
-            _allNodes.put(node.getKey(), n);
-        } else {
-            System.out.println("vertex is allReady exist");
-        }
+        nodeData _temp = (nodeData) n;
+        _allNodes.put(_temp.getKey(), _temp);
+        _allEdges.put(_temp.getKey(), _temp.getNeighbors());
+        _allNodeFast.add(_temp);
+        mc++;
     }
 
+    /**
+     * Connecting Nodes using Edges
+     *
+     * @param src  - the source of the edge.
+     * @param dest - the destination of the edge.
+     * @param w    - positive weight representing the cost (aka time, price, etc) between src-->dest.
+     */
     @Override
-    public void connect(int src, int dest, double w) throws Exception {//this method responsible for creating edge obj and adding them
-        if (w <= 0) {
-            System.out.println("Bad Weight : Not Connected!");
+    public void connect(int src, int dest, double w) {
+        if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
+            nodeEdge _temp = new nodeEdge(src, dest, w);
+            nodeData _tempNode = (nodeData) _allNodes.get(src);
+            _tempNode.getNeighbors().put(dest, _temp);
+            _allEdges.put(src, _tempNode.getNeighbors());
+            edgeSize++;
+            mc++;
         } else {
-            if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
-                edgeData ed = new edgeData(src, dest, w);
-                if (!_allEdges.containsKey(src)) {
-                    _allEdges.put(src, new HashMap<>());
-                    _allEdges.get(src).put(dest, ed);
-                    edgeSize++;
-                    _mc++;
-                } else {
-                    _allEdges.get(src).put(dest, ed);
-                    edgeSize++;
-                    _mc++;
-                }
-            } else {
-                System.out.println("src or dest are Wrong!");
-            }
+            System.out.println("connect(src,dest,w): src or dest doesn't exist! (no action preformed)");
         }
     }
 
+    /**
+     * returns Collection of Nodes in O(1)
+     *
+     * @return - Collection of Nodes in O(1)
+     */
     @Override
     public Collection<node_data> getV() {
-        return this._allNodes.values();
+        return _allNodeFast;
     }
 
+    /**
+     * returns Collection of edges the the node_id is the src in them
+     *
+     * @param node_id - source node in the edge
+     * @return - Collection of Edges with sources neighbors
+     */
     @Override
     public Collection<edge_data> getE(int node_id) {
-        return _allEdges.get(node_id).values();
+        if (!_allNodes.containsKey(node_id)) {
+            System.out.println("getE(node_id): node doesn't exists!");
+            return null;
+        } else {
+            nodeData _temp = (nodeData) _allNodes.get(node_id);
+            return _temp.getNeighbors().values();
+        }
     }
 
+    /**
+     * removes Node and all its Edges from both _allNodes and _allNodesFast O(n)
+     *
+     * @param key - id of the node to be deleted
+     * @return - return the node that was deleted
+     */
     @Override
     public node_data removeNode(int key) {
-        //if it has edges containing the ID = key so remove them all from src and dest O(n)
-        //create node and apply to it the node we are about to remove to return it O(1)
-        //delete it from node collection O(n)
-        //after deletion should refresh drawing with stdDraw and use Connect to see if Connected still.
-        //summery : O(n)+O(n)+O(1) = O(n)!
-        //_edges.get(key).clear();
-        if (_allNodes.containsKey(key)) {
-            nodeData _temp = (nodeData) _allNodes.get(key);
-            _temp.edgesOf().clear();
-            edgeSize -= _allEdges.get(key).size();
-            _allEdges.get(key).clear();
-            _allEdges.remove(key);
-            _mc++;
-            return _allNodes.remove(key);
+        if (!_allNodes.containsKey(key)) {
+            System.out.println("removeNode(key): didn't remove, node doesn't exist!");
+            return null;
         } else {
-            System.out.println("key doesnt exist");
+            _allNodeFast.remove(_allNodes.get(key));
+            edgeSize -= _allEdges.get(key).size();
+            _allEdges.remove(key);
+            for (HashMap n : _allEdges.values()) {
+                if (n.containsKey(key)) {
+                    n.remove(key);
+                    edgeSize--;
+                }
+            }
+            return _allNodes.remove(key);
+        }
+    }
+
+    /**
+     * deletes Edge by the edge going to the neighbors list inside the node and Deleting it and from _allEdges
+     *
+     * @param src
+     * @param dest
+     * @return - deleted edge is returned
+     */
+    @Override
+    public edge_data removeEdge(int src, int dest) {// need to remove from allNodesFast in node!
+        if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {//check if src even has this dest
+            if (_allEdges.get(src).containsKey(dest)) {
+                return _allEdges.get(src).remove(dest);
+            } else {
+                System.out.println("removeEdge(src,dest): edge doesn't exist!");
+                return null;
+            }
+        } else {
+            System.out.println("removeEdge(src,dest): src or dest doesn't exist!");
             return null;
         }
     }
 
-    @Override
-    public edge_data removeEdge(int src, int dest) {
-        if (_allNodes.containsKey(src) && _allNodes.containsKey(dest)) {
-            nodeData tmp = (nodeData) _allNodes.get(src);
-            tmp.deleteEdge(src, dest);
-            if (_allEdges.containsKey(src) && _allEdges.get(src).containsKey(dest)) {
-                edgeSize--;
-                return _allEdges.get(src).remove(dest);
-            } else {
-                System.out.println("Edge not exist");
-            }
-        } else {
-            System.out.println("source or destination doesnt exist");
-        }
-        return null;
-    }
-
+    /**
+     * returns number of nodes in the Graph
+     *
+     * @return
+     */
     @Override
     public int nodeSize() {
-        return _allNodes.size();
+        return _allNodeFast.size();
     }
 
+    /**
+     * returns number of edges in the graph
+     *
+     * @return
+     */
     @Override
     public int edgeSize() {
-        return this.edgeSize;
+        return edgeSize;
     }
 
+    /**
+     * returns Mode Count to check for Changes in the graph
+     *
+     * @return
+     */
     @Override
     public int getMC() {
-        return _mc;
+        return this.mc;
     }
-
-    public graph copy(graph g) throws Exception {
-        graph _temp = new DGraph();
-        for (node_data n : g.getV()) {
-            _temp.addNode(n);
-        }
-        for (node_data n : g.getV()) {
-            for (edge_data e : g.getE(n.getKey())) {
-                _temp.connect(e.getSrc(), e.getDest(), e.getWeight());
-            }
-        }
-        return _temp;
-    }
-
 
 }

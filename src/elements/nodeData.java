@@ -4,123 +4,137 @@ import dataStructure.edge_data;
 import dataStructure.node_data;
 import utils.Point3D;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.HashMap;
 
-public class nodeData implements node_data {
-    private ArrayList<edge_data> _edge = new ArrayList<>();
-    private static int _id = 0;
-    private int _key;
-    private int _prev;
-    private double _weight;
-    private Point3D _location;
-    private String _info = "";
-    private int _tag;
+/**
+ * node for the Graph
+ */
+public class nodeData implements node_data, Serializable {
+    private static int id = -1;
+    private int key;
+    private Point3D location;
+    private double weight;
+    private String info;
+    private int tag;
+    private HashMap<Integer, edge_data> neighbors;
 
-
-    public nodeData() {
-        this._key = _id;
-        this._id++;
-        this._prev = -1;
-        this._info="";
-        this._tag = -1;
-        _weight = 0;//check for logic if it should have empty constructor!
-        _location = new Point3D(0, 0);
+    /**
+     * Constructor getting location with x and y axis and creates node with new unique id as key
+     * location by the parameter given
+     * weight will be MAX.Value for algorithm purposes
+     * tag will be set to -1 for not been visited
+     * info not been set for now later will be used in algorithm
+     * empty hashMap for future neighbors
+     *
+     * @param _location
+     */
+    public nodeData(Point3D _location) {
+        id++;
+        this.key = id;
+        this.location = _location;
+        this.weight = Integer.MAX_VALUE;
+        this.tag = -1;
+        this.neighbors = new HashMap<>();
     }
 
-    public nodeData(Point3D location) throws Exception {
-        this._key = _id;
-        this._id++;
-        this._prev = -1;
-        _location = new Point3D(location);
-        _tag = -1;
-        _info = "";
-    }
-
-    public nodeData(nodeData nd) {
-        this._key = nd._key;
-        this._weight = nd._weight;
-        this._prev = nd._prev;
-        this._location = new Point3D(nd.getLocation());
-        this._tag = nd._tag;
-        this._info = nd._info;
-    }
-
-    public void addEdge(edgeData e){
-        if(this._key==e.getSrc()){
-            _edge.add(e);
-        }else{
-            System.out.println("Inserted wrong edge value");
-        }
-    }
-
+    /**
+     * Returns nodes Key
+     *
+     * @return
+     */
     @Override
     public int getKey() {
-        return _key;
+        return this.key;
     }
 
-    @Override
-    public double getWeight() {
-        return this._weight;
-    }
-
-    @Override
-    public void setWeight(double w) {
-        if(w<0){
-            System.out.println("SetWeight: weight cannot be negative");
-        }
-        this._weight = w;
-    }
-
+    /**
+     * Returns nodes Location
+     *
+     * @return
+     */
     @Override
     public Point3D getLocation() {
-        return this._location;
+        return this.location;
     }
 
+    /**
+     * Returns nodes Weight
+     *
+     * @return
+     */
     @Override
-    public void setLocation(Point3D p) {
-        if (p != null) {
-            this._location = new Point3D(p);
-        }
+    public double getWeight() {
+        return this.weight;
     }
 
+    /**
+     * Returns nodes info
+     *
+     * @return
+     */
     @Override
     public String getInfo() {
-        return _info;
+        return this.info;
     }
 
-    @Override
-    public void setInfo(String s) {
-        this._info = s;
-    }
-
+    /**
+     * Returns nodes Tag
+     *
+     * @return
+     */
     @Override
     public int getTag() {
-        return _tag;
+        return this.tag;
     }
 
+    /**
+     * Sets nodes Location
+     *
+     * @param p - new new location  (position) of this node.
+     */
+    @Override
+    public void setLocation(Point3D p) {
+        this.location = p;
+    }
+
+    /**
+     * Sets nodes Weight
+     *
+     * @param w - the new weight
+     */
+    @Override
+    public void setWeight(double w) {
+        this.weight = w;
+    }
+
+    /**
+     * Sets nodes Info
+     *
+     * @param s
+     */
+    @Override
+    public void setInfo(String s) {
+        this.info = s;
+    }
+
+    /**
+     * Sets nodes Tag
+     *
+     * @param t - the new value of the tag
+     */
     @Override
     public void setTag(int t) {
-        if(t<-1 || t>1){
-            throw new IllegalArgumentException("nodeData: setTag->Tag can only be -1,0,1");
-        }else {
-            _tag = t;
-        }
+        this.tag = t;
     }
 
-    public Collection<edge_data> edgesOf(){
-        return _edge;
+    /**
+     * Returns Nodes HashMap of edges and neighbors
+     *
+     * @return
+     */
+    public HashMap<Integer, edge_data> getNeighbors() {
+        return neighbors;
     }
-    public void deleteEdge(int src,int dest){
-        for(edge_data ed : _edge){
-            if(src==ed.getSrc() && dest == ed.getDest())
-                _edge.remove(ed);
-        }
-    }
-    public void set_prev(int n){
-        this._prev = n;
-    }
-    public int get_prev(){
-        return this._prev;
-    }
+
 }
