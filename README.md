@@ -1,7 +1,7 @@
 # Welcome to Graph project!
 
 # Authors
-Amir Hoshen &
+Amir Hoshen
 Peleg Zoborovsky
 
 # About
@@ -20,7 +20,7 @@ this Project contains **five main classes**
  this class represents a data structure of deliberate weighted and directed graph.
 
  - Graph_GUI-
- this class ilustrate this project , demonstraiting manipulations on a Graph using a Graphical User Intraface to explore and visualize the graph, with the use of StDdraw library.
+ this class ilustrate this project , demonstraiting manipulations on a Graph using a graphic user intraface to explore and visualize the graph, with the use of StDdraw library.
 
  - Graph Algo- 
  this class represent the different algorithms that can be done on this graph.  
@@ -37,5 +37,5 @@ this Project contains **five main classes**
 - [https://www.youtube.com/watch?v=pVfj6mxhdMw](https://www.youtube.com/watch?v=pVfj6mxhdMw)
 
 
-
-
+## Ilustration
+![enter image description here](https://hackernoon.com/hn-images/1*qq0sgd0Kny9QTaD-UT8LbQ.png)
