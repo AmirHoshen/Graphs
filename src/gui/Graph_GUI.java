@@ -40,13 +40,15 @@ public class Graph_GUI extends JFrame implements ActionListener {
     }
 
     public void save() {
+        String sb = "TEST CONTENT";
         Graph_Algo ga = new Graph_Algo();
         ga.init(g);
         JFileChooser jf = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        jf.setApproveButtonText("Save");
         int returnV = jf.showOpenDialog(null);
         if (returnV == JFileChooser.APPROVE_OPTION) {
             try {
-                ga.save(jf.getSelectedFile() + ".txt");
+                ga.save(jf.getSelectedFile()+".txt");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
