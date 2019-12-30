@@ -1,7 +1,7 @@
 # Welcome to Graph project!
 
 # Authors
-Amir Hoshen
+Amir Hoshen &
 Peleg Zoborovsky
 
 # About
