@@ -13,8 +13,8 @@ this Project contains **five main classes**
 - directed graph definition
 In formal terms, a directed graph is an ordered pair G = (V, A) where[1]
 
-V is a set whose elements are called vertices, nodes, or points;
-A is a set of ordered pairs of vertices, called arrows, directed edges (sometimes simply edges with the corresponding set named E instead of A), directed arcs, or directed lines.
+- V is a set whose elements are called vertices, nodes, or points;
+- A is a set of ordered pairs of vertices, called arrows, directed edges (sometimes simply edges with the corresponding set named E instead of A), directed arcs, or directed lines.
 It differs from an ordinary or undirected graph, in that the latter is defined in terms of unordered pairs of vertices, which are usually called edges, arcs, or lines.
 
 
