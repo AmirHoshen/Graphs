@@ -24,6 +24,10 @@ public class Graph_Algo implements graph_algorithms, Serializable {
         this._graph = new DGraph();
     }
 
+    public Graph_Algo(graph g) {
+        this._graph = g;
+    }
+
     /**
      * Comparator to determine what node to take next in Dijkstra algorithm
      * the node with the least weight will be the first!
@@ -131,18 +135,23 @@ public class Graph_Algo implements graph_algorithms, Serializable {
         Graph_Algo _temp = new Graph_Algo();
         _temp.init(this.copy());
         _temp.resetVisits();
-        nodeData node = (nodeData) _temp._graph.getV().iterator().next();
-        DFS(node.getKey(), _temp);
-        for (node_data n : _temp._graph.getV()) {
-            if (n.getTag() == -1)
-                return false;
-        }
-        Transpose(_temp);
-        _temp.resetVisits();
-        DFS(node.getKey(), _temp);
-        for (node_data n : _temp._graph.getV()) {
-            if (n.getTag() == -1)
-                return false;
+        Iterator<node_data> iterator = _temp._graph.getV().iterator();
+        if (iterator.hasNext()) {
+            nodeData node = (nodeData) _temp._graph.getV().iterator().next();
+            DFS(node.getKey(), _temp);
+            for (node_data n : _temp._graph.getV()) {
+                if (n.getTag() == -1)
+                    return false;
+            }
+            Transpose(_temp);
+            _temp.resetVisits();
+            DFS(node.getKey(), _temp);
+            for (node_data n : _temp._graph.getV()) {
+                if (n.getTag() == -1)
+                    return false;
+            }
+        }else{
+            return true;//graph is empty
         }
         return true;
     }
