@@ -251,7 +251,7 @@ public class Graph_Algo implements graph_algorithms, Serializable {
      *
      * @param l - list of nodes from the starting point to the end of the shortestPath(src,dest) function
      */
-    public void shortestPathToString(List<node_data> l) {//prints path from start to end
+    public String shortestPathToString(List<node_data> l) {//prints path from start to end
         String ans = "Path: ";
         Queue<node_data> s = new LinkedList<>();
         for (node_data n : l) {
@@ -265,6 +265,7 @@ public class Graph_Algo implements graph_algorithms, Serializable {
             ;
         }
         System.out.println(ans);
+        return ans;
     }
 
     /**
